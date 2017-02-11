@@ -75,7 +75,10 @@ def advance(dt):
     '''
         advance the system one timestep
     '''
+
+    # CHANGE (1): Make seenit a set, not a list.
     seenit = set()
+
     for body1 in BODIES.keys():
         for body2 in BODIES.keys():
             if (body1 != body2) and not (body2 in seenit):
@@ -83,20 +86,27 @@ def advance(dt):
                 ([x2, y2, z2], v2, m2) = BODIES[body2]
                 (dx, dy, dz) = compute_deltas(x1, x2, y1, y2, z1, z2)
                 update_vs(v1, v2, dt, dx, dy, dz, m1, m2)
+
+                # CHANGE (1): Update .append() to .add()
                 seenit.add(body1)
         
     for body in BODIES.keys():
         (r, [vx, vy, vz], m) = BODIES[body]
         update_rs(r, dt, vx, vy, vz)
 
+
 def compute_energy(m1, m2, dx, dy, dz):
     return (m1 * m2) / ((dx * dx + dy * dy + dz * dz) ** 0.5)
-    
+
+
 def report_energy(e=0.0):
     '''
         compute the energy and return it so that it can be printed
     '''
+
+    # CHANGE (1): Make seenit a set, not a list.
     seenit = set()
+
     for body1 in BODIES.keys():
         for body2 in BODIES.keys():
             if (body1 != body2) and not (body2 in seenit):
@@ -104,6 +114,8 @@ def report_energy(e=0.0):
                 ((x2, y2, z2), v2, m2) = BODIES[body2]
                 (dx, dy, dz) = compute_deltas(x1, x2, y1, y2, z1, z2)
                 e -= compute_energy(m1, m2, dx, dy, dz)
+
+                # CHANGE (1): Update .append() to .add()
                 seenit.add(body1)
         
     for body in BODIES.keys():
@@ -111,6 +123,7 @@ def report_energy(e=0.0):
         e += m * (vx * vx + vy * vy + vz * vz) / 2.
         
     return e
+
 
 def offset_momentum(ref, px=0.0, py=0.0, pz=0.0):
     '''

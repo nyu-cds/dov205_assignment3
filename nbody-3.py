@@ -9,15 +9,19 @@
     Relative speedup: (75.666 / 71.333) = 1.06x
 """
 
+
 def compute_deltas(x1, x2, y1, y2, z1, z2):
     return (x1-x2, y1-y2, z1-z2)
-    
+
+
 def compute_b(m, dt, dx, dy, dz):
     mag = compute_mag(dt, dx, dy, dz)
     return m * mag
 
+
 def compute_mag(dt, dx, dy, dz):
     return dt * ((dx * dx + dy * dy + dz * dz) ** (-1.5))
+
 
 def update_vs(v1, v2, dt, dx, dy, dz, m1, m2):
     v1[0] -= dx * compute_b(m2, dt, dx, dy, dz)
@@ -27,16 +31,21 @@ def update_vs(v1, v2, dt, dx, dy, dz, m1, m2):
     v2[1] += dy * compute_b(m1, dt, dx, dy, dz)
     v2[2] += dz * compute_b(m1, dt, dx, dy, dz)
 
+
 def update_rs(r, dt, vx, vy, vz):
     r[0] += dt * vx
     r[1] += dt * vy
     r[2] += dt * vz
 
+
+# CHANGE (3.1): Added BODIES as local variable.
 def advance(dt, BODIES):
     '''
         advance the system one timestep
     '''
+
     seenit = []
+
     for body1 in BODIES.keys():
         for body2 in BODIES.keys():
             if (body1 != body2) and not (body2 in seenit):
@@ -50,9 +59,12 @@ def advance(dt, BODIES):
         (r, [vx, vy, vz], m) = BODIES[body]
         update_rs(r, dt, vx, vy, vz)
 
+
 def compute_energy(m1, m2, dx, dy, dz):
     return (m1 * m2) / ((dx * dx + dy * dy + dz * dz) ** 0.5)
-    
+
+
+# CHANGE (3.1): Added BODIES as local variable.
 def report_energy(BODIES, e=0.0):
     '''
         compute the energy and return it so that it can be printed
@@ -73,6 +85,7 @@ def report_energy(BODIES, e=0.0):
         
     return e
 
+# CHANGE (1): Added BODIES as local variable.
 def offset_momentum(ref, BODIES, px=0.0, py=0.0, pz=0.0):
     '''
         ref is the body in the center of the system
@@ -90,7 +103,7 @@ def offset_momentum(ref, BODIES, px=0.0, py=0.0, pz=0.0):
     v[1] = py / m
     v[2] = pz / m
 
-
+# CHANGE (1): Added BODIES as local variable.
 def nbody(loops, reference, iterations, BODIES):
     '''
         nbody simulation
@@ -109,6 +122,7 @@ def nbody(loops, reference, iterations, BODIES):
 
 if __name__ == '__main__':
 
+    # CHANGE (2): Added global variables to local w.r.t main()
     SOLAR_MASS = 4 * 3.14159265358979323 * 3.14159265358979323
     DAYS_PER_YEAR = 365.24
     BODIES = {
@@ -146,5 +160,6 @@ if __name__ == '__main__':
                      -9.51592254519715870e-05 * DAYS_PER_YEAR],
                     5.15138902046611451e-05 * SOLAR_MASS)}
 
+    # CHANGE (1): Weave BODIES through the program state
     nbody(100, 'sun', 20000, BODIES)
 
