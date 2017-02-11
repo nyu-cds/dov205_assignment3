@@ -181,7 +181,19 @@ def nbody(loops, reference, iterations):
     '''
 
     # Set up global state
-    offset_momentum(BODIES[reference])
+    # CHANGE (6): Remove one-off call to offset_momentum and nest it within nbody.
+    px, py, pz = 0, 0, 0
+
+    for body in BODIES.keys():
+        (r, [vx, vy, vz], m) = BODIES[body]
+        px -= vx * m
+        py -= vy * m
+        pz -= vz * m
+
+    (r, v, m) = BODIES[reference]
+    v[0] = px / m
+    v[1] = py / m
+    v[2] = pz / m
 
     for _ in range(loops):
         report_energy()

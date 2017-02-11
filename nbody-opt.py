@@ -5,8 +5,8 @@
     NetID: dov205
 
     Original runtime: Average(76s, 76, 75s) = 75.666s
-    Improved runtime: Average(25.8s, 25.4s, 25.4s) = 25.533s -- under 30s!
-    Relative speedup: (75.666 / 25.533) = 2.96x
+    Improved runtime: Average(25.4s, 25.4s, 25.4s) = 25.4s -- under 30s!
+    Relative speedup: (75.666 / 25.4) = 2.978x
 """
 
 # DEPRECATED WITH CHANGE (1.2)
@@ -43,7 +43,7 @@ def update_rs(r, dt, vx, vy, vz):
 
 
 # CHANGE (3.1): Added BODIES as local variable.
-def advance(dt, iterations, BODIES):
+def advance(dt, iterations, BODIES, BODY_NAMES):
     '''
         advance the system one timestep
     '''
@@ -55,12 +55,9 @@ def advance(dt, iterations, BODIES):
         # CHANGE (2.1): Make seenit a set, for O(1) lookup/membership
         seenit = set()
 
-        # CHANGE (4.1): Assign BODIES keys to :body_names to avoid dot-lookup.
-        body_names = BODIES.keys()
-
         # CHANGE (4.2): Change collected from BODIES.keys() to :body_names
-        for body1 in body_names:
-            for body2 in body_names:
+        for body1 in BODY_NAMES:
+            for body2 in BODY_NAMES:
 
                 if (body1 != body2) and not (body2 in seenit):
 
@@ -87,7 +84,7 @@ def advance(dt, iterations, BODIES):
                     seenit.add(body1)
 
         # CHANGE (4.2): Change collected from BODIES.keys() to :body_names
-        for body in body_names:
+        for body in BODY_NAMES:
             (r, [vx, vy, vz], m) = BODIES[body]
 
             # CHANGE (1.5): Remove call to update_rs and just do it
@@ -102,7 +99,7 @@ def compute_energy(m1, m2, dx, dy, dz):
 
 
 # CHANGE (3.1): Added BODIES as local variable.
-def report_energy(BODIES, e=0.0):
+def report_energy(BODIES, BODY_NAMES, e=0.0):
     '''
         compute the energy and return it so that it can be printed
     '''
@@ -110,12 +107,9 @@ def report_energy(BODIES, e=0.0):
     # CHANGE (2.1): Make seenit a set, for O(1) lookup/membership
     seenit = set()
 
-    # CHANGE (4.1): Assign BODIES keys to :body_names to avoid dot-lookup.
-    body_names = BODIES.keys()
-
     # CHANGE (4.2): Change collected from BODIES.keys() to :body_names
-    for body1 in body_names:
-        for body2 in body_names:
+    for body1 in BODY_NAMES:
+        for body2 in BODY_NAMES:
 
             if (body1 != body2) and not (body2 in seenit):
                 ((x1, y1, z1), v1, m1) = BODIES[body1]
@@ -129,7 +123,7 @@ def report_energy(BODIES, e=0.0):
                 seenit.add(body1)
 
     # CHANGE (4.2): Change collected from BODIES.keys() to :body_names
-    for body in body_names:
+    for body in BODY_NAMES:
         (r, [vx, vy, vz], m) = BODIES[body]
         e += m * (vx * vx + vy * vy + vz * vz) / 2.
         
@@ -137,6 +131,7 @@ def report_energy(BODIES, e=0.0):
 
 
 # CHANGE (3.1): Added BODIES as local variable.
+# DEPRECATED AS OF CHANGE (1.6)
 def offset_momentum(ref, BODIES, px=0.0, py=0.0, pz=0.0):
     '''
         ref is the body in the center of the system
@@ -165,17 +160,32 @@ def nbody(loops, reference, iterations, BODIES):
     '''
 
     # Set up global state
-    offset_momentum(BODIES[reference], BODIES)
+    # CHANGE (1.6): Remove one-off call to offset_momentum and nest it within nbody.
+    px, py, pz = 0, 0, 0
+
+    # CHANGE (1.6): Also introduce body_names at nbody so we can weave it throughout state.
+    BODY_NAMES = BODIES.keys()
+
+    for body in BODY_NAMES:
+        (r, [vx, vy, vz], m) = BODIES[body]
+        px -= vx * m
+        py -= vy * m
+        pz -= vz * m
+
+    (r, v, m) = BODIES[reference]
+    v[0] = px / m
+    v[1] = py / m
+    v[2] = pz / m
 
     for _ in range(loops):
 
-        report_energy(BODIES)
+        report_energy(BODIES, BODY_NAMES)
 
         # CHANGE (1.4): Remove :iterations calls to advance, and
         # just do it once.
-        advance(0.01, iterations, BODIES)
+        advance(0.01, iterations, BODIES, BODY_NAMES)
 
-        print(report_energy(BODIES))
+        print(report_energy(BODIES, BODY_NAMES))
 
 if __name__ == '__main__':
 
