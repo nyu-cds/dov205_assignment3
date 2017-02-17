@@ -9,38 +9,6 @@
     Relative speedup: (75.666 / 25.4) = 2.978x
 """
 
-# DEPRECATED WITH CHANGE (1.2)
-def compute_deltas(x1, x2, y1, y2, z1, z2):
-    return (x1-x2, y1-y2, z1-z2)
-
-
-# DEPRECATED WITH CHANGE (1.1)
-def compute_b(m, dt, dx, dy, dz):
-    mag = compute_mag(dt, dx, dy, dz)
-    return m * mag
-
-
-# DEPRECATED WITH CHANGE (1.1)
-def compute_mag(dt, dx, dy, dz):
-    return dt * ((dx * dx + dy * dy + dz * dz) ** (-1.5))
-
-
-# DEPRECATED WITH CHANGE(1.1)
-def update_vs(v1, v2, dt, dx, dy, dz, m1, m2):
-    v1[0] -= dx * compute_b(m2, dt, dx, dy, dz)
-    v1[1] -= dy * compute_b(m2, dt, dx, dy, dz)
-    v1[2] -= dz * compute_b(m2, dt, dx, dy, dz)
-    v2[0] += dx * compute_b(m1, dt, dx, dy, dz)
-    v2[1] += dy * compute_b(m1, dt, dx, dy, dz)
-    v2[2] += dz * compute_b(m1, dt, dx, dy, dz)
-
-
-# DEPRECATED WITH CHANGE (1.5)
-def update_rs(r, dt, vx, vy, vz):
-    r[0] += dt * vx
-    r[1] += dt * vy
-    r[2] += dt * vz
-
 
 # CHANGE (3.1): Added BODIES as local variable.
 def advance(dt, iterations, BODIES, BODY_NAMES):
@@ -93,11 +61,6 @@ def advance(dt, iterations, BODIES, BODY_NAMES):
             r[2] += dt * vz
 
 
-# DEPRECATED WITH CHANGE (1.2)
-def compute_energy(m1, m2, dx, dy, dz):
-    return (m1 * m2) / ((dx * dx + dy * dy + dz * dz) ** 0.5)
-
-
 # CHANGE (3.1): Added BODIES as local variable.
 def report_energy(BODIES, BODY_NAMES, e=0.0):
     '''
@@ -128,26 +91,6 @@ def report_energy(BODIES, BODY_NAMES, e=0.0):
         e += m * (vx * vx + vy * vy + vz * vz) / 2.
         
     return e
-
-
-# CHANGE (3.1): Added BODIES as local variable.
-# DEPRECATED AS OF CHANGE (1.6)
-def offset_momentum(ref, BODIES, px=0.0, py=0.0, pz=0.0):
-    '''
-        ref is the body in the center of the system
-        offset values from this reference
-    '''
-
-    for body in BODIES.keys():
-        (r, [vx, vy, vz], m) = BODIES[body]
-        px -= vx * m
-        py -= vy * m
-        pz -= vz * m
-        
-    (r, v, m) = ref
-    v[0] = px / m
-    v[1] = py / m
-    v[2] = pz / m
 
 
 # CHANGE (3.1): Added BODIES as local variable.
