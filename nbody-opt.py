@@ -1,3 +1,5 @@
+from itertools import product
+
 """
     N-body simulation.
 
@@ -5,137 +7,118 @@
     NetID: dov205
 
     Original runtime: Average(76s, 76, 75s) = 75.666s
-    Improved runtime: Average(25.4s, 25.4s, 25.4s) = 25.4s -- under 30s!
-    Relative speedup: (75.666 / 25.4) = 2.978x
+    Improved runtime: Average(22.6s, 22.4s, 22.2s) = 22.4s -- under 30s!
+    Relative speedup: (75.666 / 22.4) = 3.377x
 """
 
 
-# CHANGE (3.1): Added BODIES as local variable.
-def advance(dt, iterations, BODIES, BODY_NAMES):
-    '''
-        advance the system one timestep
-    '''
+def advance(dt, iterations, bodies, body_names, key_pairs):
+    """Advance the system :dt time, :iterations times.
 
-    # CHANGE (1.4): Remove :iterations calls to advance, and
-    # just do it :iterations times in advance()
+    :param dt: the change in time between the previous time and now
+    :param iterations: the number of times to do :dt advances in one simulation.
+    :param bodies: {name : body_information} dictionary for all bodies
+    :param body_names: names of bodies (= bodies.keys())
+    :param key_pairs: pairs of bodies in :bodies' keys
+    """
+
     for _ in range(iterations):
 
-        # CHANGE (2.1): Make seenit a set, for O(1) lookup/membership
-        seenit = set()
+        for (body1, body2) in key_pairs:
 
-        # CHANGE (4.2): Change collected from BODIES.keys() to :body_names
-        for body1 in BODY_NAMES:
-            for body2 in BODY_NAMES:
+            ([x1, y1, z1], v1, m1) = bodies[body1]
+            ([x2, y2, z2], v2, m2) = bodies[body2]
 
-                if (body1 != body2) and not (body2 in seenit):
+            (dx, dy, dz) = (x1 - x2, y1 - y2, z1 - z2)
 
-                    ([x1, y1, z1], v1, m1) = BODIES[body1]
-                    ([x2, y2, z2], v2, m2) = BODIES[body2]
+            inner_mag = dt * ((dx * dx + dy * dy + dz * dz) ** (-1.5))
+            b_m2 = m2 * inner_mag
+            b_m1 = m1 * inner_mag
+            v1[0] -= dx * b_m2
+            v1[1] -= dy * b_m2
+            v1[2] -= dz * b_m2
+            v2[0] += dx * b_m1
+            v2[1] += dy * b_m1
+            v2[2] += dz * b_m1
 
-                    # CHANGE (1.2): Omit compute_*, instead just perform subtractions
-                    (dx, dy, dz) = (x1 - x2, y1 - y2, z1 - z2)
+        for body in body_names:
 
-                    # CHANGE (1): Remove function calls to compute_b and look-aside calls to
-                    #  compute_mag. We can also store values that are computed many times,
-                    #  like inner_mag, mag_m2, and mag_m1.
-                    inner_mag = dt * ((dx * dx + dy * dy + dz * dz) ** (-1.5))
-                    b_m2 = m2 * inner_mag
-                    b_m1 = m1 * inner_mag
-                    v1[0] -= dx * b_m2
-                    v1[1] -= dy * b_m2
-                    v1[2] -= dz * b_m2
-                    v2[0] += dx * b_m1
-                    v2[1] += dy * b_m1
-                    v2[2] += dz * b_m1
+            (r, [vx, vy, vz], m) = bodies[body]
 
-                    # CHANGE (2.1): Update .append() to .add()
-                    seenit.add(body1)
-
-        # CHANGE (4.2): Change collected from BODIES.keys() to :body_names
-        for body in BODY_NAMES:
-            (r, [vx, vy, vz], m) = BODIES[body]
-
-            # CHANGE (1.5): Remove call to update_rs and just do it
             r[0] += dt * vx
             r[1] += dt * vy
             r[2] += dt * vz
 
 
-# CHANGE (3.1): Added BODIES as local variable.
-def report_energy(BODIES, BODY_NAMES, e=0.0):
-    '''
-        compute the energy and return it so that it can be printed
-    '''
+def report_energy(bodies, body_names, key_pairs, e=0.0):
+    """Compute the energy and return it so that it can be printed
 
-    # CHANGE (2.1): Make seenit a set, for O(1) lookup/membership
-    seenit = set()
+    :param bodies: {name : body_information} dictionary for all bodies
+    :param body_names: names of bodies (= bodies.keys())
+    :param key_pairs: pairs of bodies in :bodies' keys
+    :param e: baseline energy
+    :return: e
+    """
 
-    # CHANGE (4.2): Change collected from BODIES.keys() to :body_names
-    for body1 in BODY_NAMES:
-        for body2 in BODY_NAMES:
+    for (body1, body2) in key_pairs:
+        ((x1, y1, z1), v1, m1) = bodies[body1]
+        ((x2, y2, z2), v2, m2) = bodies[body2]
 
-            if (body1 != body2) and not (body2 in seenit):
-                ((x1, y1, z1), v1, m1) = BODIES[body1]
-                ((x2, y2, z2), v2, m2) = BODIES[body2]
-
-                # CHANGE (1.2): Omit compute_*, instead just perform computations
-                (dx, dy, dz) = (x1 - x2, y1 - y2, z1 - z2)
-                e -= ((m1 * m2) / ((dx * dx + dy * dy + dz * dz) ** 0.5))
-
-                # CHANGE (1): Update .append() to .add()
-                seenit.add(body1)
-
-    # CHANGE (4.2): Change collected from BODIES.keys() to :body_names
-    for body in BODY_NAMES:
-        (r, [vx, vy, vz], m) = BODIES[body]
+        (dx, dy, dz) = (x1-x2, y1-y2, z1-z2)
+        e -= (m1 * m2) / ((dx * dx + dy * dy + dz * dz) ** 0.5)
+        
+    for body in body_names:
+        (r, [vx, vy, vz], m) = bodies[body]
         e += m * (vx * vx + vy * vy + vz * vz) / 2.
         
     return e
 
 
-# CHANGE (3.1): Added BODIES as local variable.
-def nbody(loops, reference, iterations, BODIES):
-    '''
-        nbody simulation
-        loops - number of loops to run
-        reference - body at center of system
-        iterations - number of timesteps to advance
-    '''
+def nbody(loops, reference, iterations, bodies):
+    """N-body simulation.
+
+    :param loops: number of loops to run
+    :param reference: body at center of system
+    :param iterations: number of timesteps to advance
+    :param bodies: {name : body_information} dictionary for all bodies
+    """
 
     # Set up global state
-    # CHANGE (1.6): Remove one-off call to offset_momentum and nest it within nbody.
     px, py, pz = 0, 0, 0
 
-    # CHANGE (1.6): Also introduce body_names at nbody so we can weave it throughout state.
-    BODY_NAMES = BODIES.keys()
+    body_names = bodies.keys()
+    body_pairs = {
+        tuple(sorted(pair)) for pair in product(body_names, body_names)
+              if pair[0] != pair[1]
+    }
 
-    for body in BODY_NAMES:
-        (r, [vx, vy, vz], m) = BODIES[body]
+    for body in body_names:
+        (r, [vx, vy, vz], m) = bodies[body]
         px -= vx * m
         py -= vy * m
         pz -= vz * m
 
-    (r, v, m) = BODIES[reference]
+    (r, v, m) = bodies[reference]
     v[0] = px / m
     v[1] = py / m
     v[2] = pz / m
 
     for _ in range(loops):
 
-        report_energy(BODIES, BODY_NAMES)
+        report_energy(bodies, body_names, body_pairs)
 
-        # CHANGE (1.4): Remove :iterations calls to advance, and
-        # just do it once.
-        advance(0.01, iterations, BODIES, BODY_NAMES)
+        advance(0.01, iterations, bodies, body_names, body_pairs)
 
-        print(report_energy(BODIES, BODY_NAMES))
+        print(report_energy(bodies, body_names, body_pairs))
+
 
 if __name__ == '__main__':
 
-    # CHANGE (3.2): Added global variables to local w.r.t main()
-    SOLAR_MASS = 4 * 3.14159265358979323 * 3.14159265358979323
+    PI = 3.14159265358979323
+    SOLAR_MASS = 4 * PI * PI
     DAYS_PER_YEAR = 365.24
-    BODIES = {
+
+    bodies = {
         'sun': ([0.0, 0.0, 0.0], [0.0, 0.0, 0.0], SOLAR_MASS),
 
         'jupiter': ([4.84143144246472090e+00,
@@ -170,6 +153,5 @@ if __name__ == '__main__':
                      -9.51592254519715870e-05 * DAYS_PER_YEAR],
                     5.15138902046611451e-05 * SOLAR_MASS)}
 
-    # CHANGE (3.1): Weave BODIES through the program state
-    nbody(100, 'sun', 20000, BODIES)
+    nbody(100, 'sun', 20000, bodies)
 
