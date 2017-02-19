@@ -105,8 +105,6 @@ def nbody(loops, reference, iterations, bodies):
 
     for _ in range(loops):
 
-        report_energy(bodies, body_names, body_pairs)
-
         advance(0.01, iterations, bodies, body_names, body_pairs)
 
         print(report_energy(bodies, body_names, body_pairs))
