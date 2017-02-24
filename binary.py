@@ -9,6 +9,19 @@ def zbits(n: int, k: int) -> set():
     :return as_strings: set of binary sequences as strings that fulfill :n and :k constraints.
     """
     
+    # Ensure our function was called with valid inputs.
+    try:
+        n, k = int(n), int(k)
+
+    except (TypeError, ValueError):
+        print("ERROR: both parameters must be numbers, preferrably integers.")
+        return
+
+    # Ensure k < n.
+    if k > n:
+        print("ERROR: cannot have n-length binary sequence with k > n zeros.")
+        return
+
     # TODO can be optimized? No need to generate ALL pairs.
     # Generate all :n-length pairs, choosing from either 0 or 1.
     all_pairs = product([0, 1], repeat = n)
