@@ -25,3 +25,10 @@ def zbits(n: int, k: int) -> set():
     # Output: {"101...", "011...", ...}
     return as_strings
 
+
+if __name__ == '__main__':
+   
+    # If run from terminal as `$ python binary.py`, run provided tests
+    assert zbits(4, 3) == {'0100', '0001', '0010', '1000'}
+    assert zbits(4, 1) == {'0111', '1011', '1101', '1110'}
+    assert zbits(5, 4) == {'00001', '00100', '01000', '10000', '00010'}
