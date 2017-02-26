@@ -22,7 +22,6 @@ def zbits(n: int, k: int) -> set():
         print("ERROR: cannot have n-length binary sequence with k > n zeros.")
         return
 
-    # TODO can be optimized? No need to generate ALL pairs.
     # Generate all :n-length pairs, choosing from either 0 or 1.
     all_pairs = product([0, 1], repeat = n)
 
