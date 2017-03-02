@@ -1,11 +1,9 @@
-from numpy import dot, add, sqrt
-
 """
     Name: Danny Vilela (dov205)
     
-    Original runtime: Average(1.37s, 1.38s, 1.38s) = 1.376667s
-    Improved runtime: Average(55.9ms, 55ms, 55ms) = 55.300000ms = 0.0553s
-    Relative speedup: (1.376667 / 0.0553) = 24.8945
+    Original runtime: Average(1.37s, 1.38s, 1.38s) =  1.376667s
+    Improved runtime: Average(31ms, 31.1ms, 31ms)  = 31.033333ms = 0.0310s
+    Relative speedup: (1.376667 / 0.0310) = 44.40
 
     Comments:
         The majority of the task was using NumPy-native functions
@@ -16,7 +14,7 @@ from numpy import dot, add, sqrt
         That said, there's no reason to reinvent the wheel. The explicit
         changes were as follow:
 
-        multiple() -> np.dot()
+        multiple() -> np.multiply()
         add()      -> np.add()
         sqrt()     -> np.sqrt()
 
@@ -39,8 +37,8 @@ def hypotenuse(x,y):
     Return sqrt(x**2 + y**2) for two arrays, a and b.
     x and y must be two-dimensional arrays of the same shape.
     """
-    xx = dot(x, x)
-    yy = dot(y, y)
+    xx = multiply(x, x)
+    yy = multiply(y, y)
     zz = add(xx, yy)
     return sqrt(zz)
 
@@ -50,6 +48,7 @@ def hypotenuse(x,y):
 # ----------------------------------------------------------------------------- 
 if __name__ == '__main__':
     
+    from numpy import multiply, add, sqrt 
     from numpy.random import random
 
     M = 10**3
