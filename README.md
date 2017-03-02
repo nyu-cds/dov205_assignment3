@@ -1,3 +1,7 @@
+# Assignment 6
+
+Please see `calculator.py` and `nbody-numpy.py`.
+
 # Assignment 5
 
 Please see `binary.py` and `nbody-iter.py`.

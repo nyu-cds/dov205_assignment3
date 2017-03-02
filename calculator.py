@@ -19,13 +19,20 @@ from numpy import dot, add, sqrt
         multiple() -> np.dot()
         add()      -> np.add()
         sqrt()     -> np.sqrt()
+
+    Evaluated from IPython shell with the following:
+
+        %%timeit
+        %run calculator.py
+
+    I also modified the default behavior of running `python calculator.py`
+    from the terminal in order to properly test the runtime of hypotenuse().
+    I figure this is harmless.
 """
 
 # -----------------------------------------------------------------------------
 # calculator.py
 # ----------------------------------------------------------------------------- 
-from numpy import dot, add, sqrt
-
 
 def hypotenuse(x,y):
     """
