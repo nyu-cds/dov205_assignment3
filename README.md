@@ -1,6 +1,6 @@
 # Assignment 6
 
-Please see `calculator.py`.
+Please see `calculator.py` and `nbody-numpy.py`.
 
 # Assignment 5
 
