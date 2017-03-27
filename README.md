@@ -1,3 +1,7 @@
+# Assignment 7
+
+Please see `nbody_cython.pyx`
+
 # Assignment 6
 
 Please see `calculator.py`.
