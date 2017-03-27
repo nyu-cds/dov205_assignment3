@@ -8,11 +8,12 @@ import cython
     NetID: dov205
 
     Original runtime: Average(76s, 76, 75s) = 75.666s
-    Improved runtime: Average(22.6s, 22.4s, 22.2s) = 22.4s -- under 30s!
-    Relative speedup: (75.666 / 22.4) = 3.377x
+    Improved runtime: Average(6.31s, 6.25s, 6.27s) = 6.2766s
+    Relative speedup: (75.666 / 6.2766) = 12.055x
 """
 
 
+@cython.boundscheck(False)
 cpdef advance(float dt, int iterations, dict bodies, list body_names, set key_pairs):
     """Advance the system :dt time, :iterations times.
 
@@ -63,6 +64,7 @@ cpdef advance(float dt, int iterations, dict bodies, list body_names, set key_pa
             r[2] += dt * vz
 
 
+@cython.boundscheck(False)
 cpdef float report_energy(dict bodies, list body_names, set key_pairs, float e=0.0):
     """Compute the energy and return it so that it can be printed
 
