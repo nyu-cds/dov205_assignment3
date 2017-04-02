@@ -1,6 +1,10 @@
+# Assignment 8
+
+Please see `nbody_numba.py`.
+
 # Assignment 7
 
-Please see `nbody_cython.pyx`
+Please see `nbody_cython.pyx`.
 
 # Assignment 6
 
