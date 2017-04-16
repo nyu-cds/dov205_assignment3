@@ -1,3 +1,7 @@
+# Assignment 10
+
+Please see `mpi_assignment_1.py` and `mpi_assignment_2.py`.
+
 # Assignment 8
 
 Please see `nbody_numba.py`.
