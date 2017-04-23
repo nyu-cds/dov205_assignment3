@@ -1,3 +1,7 @@
+# Assignment 11
+
+Please see `parallel_sorter.py` under the `assignment11` directory.
+
 # Assignment 10
 
 Please see `mpi_assignment_1.py` and `mpi_assignment_2.py`.
