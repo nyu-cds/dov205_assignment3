@@ -1,3 +1,21 @@
+"""
+    Danny Vilela
+
+    This program is a parallel sort implementation that utilizes
+    a divide-and-conquer approach to the sorting algorithm. We use
+    mergesort's merge phase to lead our re-combination of data.
+
+    Run from the terminal as such:
+
+        $ mpiexec -n NUMBER_OF_PROCESSES python parallel_sorter.py [DATA_SIZE]
+
+    replace NUMBER_OF_PROCESSES with some integer value denoting the number
+    of processes you would like to distribute work across. This program also
+    takes an optional DATA_SIZE argument to specify the literal size of the random
+    data generated that is to be sorted. If not provided, the program assumes
+    a default data size of 10,000.
+"""
+
 from mpi4py import MPI
 from sys import exit, argv
 from numpy.random import randint
@@ -17,7 +35,7 @@ def main():
         data_size = get_opt_input(argv)
         
         # Generate 10,000 integers in the range [0, 10,000).
-        data = randint(low=0, high=10000, size=data_size)
+        data = generate_data(size=data_size)
 
         # Print our initial list to the user.
         print('Unsorted array: {}'.format(list(data)))
@@ -52,6 +70,38 @@ def main():
         print('Sorted array: {}'.format(merged))
 
 
+def generate_data(low=0, high=10000, size=10000):
+    """Generate our dataset of :size elements in the range [:low, :high).
+
+    :param low: lower bound of integer values for our data.
+    :param high: upper bound of integer values for our data.
+    :param size: number of elements to be included in data.
+    """
+
+    # Validate our data generation parameters are valid integers.
+    try:
+        low  = int(low)
+        high = int(high)
+        size = int(size)
+
+    except (TypeError, ValueError):
+        print(
+            "Unable to cast data generation parameters (low={}, high={}, size={}) as integers.".format(low, high, size),
+            "Setting to default low=0, high=100, size=100",
+            sep=" "
+        )
+        return randint(0, 100, 100)
+    
+    # Handle case where our range is invalid
+    if low >= high:
+        low, high = high, low
+
+    if size < 0:
+        raise ValueError("Invalid size parameter {} must be greater than 0".format(size))
+
+    return randint(low, high, size)
+
+
 def merge(left, right):
     """Merge two sorted lists. Second phase of mergesort algorithm.
 
@@ -63,6 +113,9 @@ def merge(left, right):
     :param right: sorted list of numeric values.
     :return merged: sorted union of :left and :right.
     """
+    
+    if left is None or right is None:
+        raise ValueError("Error: Parameters cannot be NoneType.")
 
     # Initialize each param list's length and starting index.
     left_length, left_index = len(left), 0
@@ -125,21 +178,14 @@ def get_opt_input(args):
 
         try:
 
-            # If our integer cast of :size_arg is valid (> 0) return that as array length.
+            # If our integer cast of :size_arg is valid return that as array length.
             cast = int(size_arg)
-          
-            if cast > 0:
-                return cast
-
-            # Otherwise, inform user of mistake and exit.
-            else:
-                print("Data size must be positive integer -- `{}` is invalid.".format(size_arg))
-                exit(1)
+            return cast
 
         # Inform user if we're unable to extract an integer from their input.
-        except:
-            print("Data size must be an integer -- `{}` is invalid.".format(size_arg))
-            exit(1)
+        except (ValueError, TypeError):
+            print("Data size must be an integer -- `{}` is invalid. Returning default size of 10000.".format(size_arg))
+            return 10000
 
 
 if __name__ == '__main__':
