@@ -1,3 +1,7 @@
+# Assignment 12
+
+Please see `mandelbrot_gpu.py`.
+
 # Assignment 11
 
 Please see `parallel_sorter.py` under the `assignment11` directory.
