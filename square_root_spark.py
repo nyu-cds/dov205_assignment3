@@ -8,7 +8,7 @@ def main(sc):
     nums = sc.parallelize(range(1, 1001))
     
     # Map all values to their square roots.
-    roots = nums.map(lambda val: (val ** 0.5))
+    roots = nums.map(lambda val: val ** 0.5)
 
     # Accumulate sum of roots, divide by size of :roots RDD.
     average = roots.fold(0, add) / roots.count()

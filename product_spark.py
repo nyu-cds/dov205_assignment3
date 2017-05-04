@@ -10,7 +10,7 @@ def main(sc):
     # Using 1 as default value, fold partitions using multiplication.
     product = nums.fold(1, mul)
 
-    # Print, effectively, math.factorial(1000)
+    # Print, effectively, math.factorial(1000).
     print(product)
 
 

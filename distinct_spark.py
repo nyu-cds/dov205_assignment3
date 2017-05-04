@@ -1,5 +1,4 @@
 from pyspark import SparkContext
-from operator import add
 import re
 
 # remove any non-words and split lines into separate words
